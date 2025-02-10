@@ -1,0 +1,22 @@
+version: "3.1"
+
+services:
+  mysql:
+    image: ${MYSQL_IMAGE}
+    container_name: ${MYSQL_CONTAINER_NAME}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
+    networks:
+      - ${MYSQL_NETWORK}
+    volumes:
+      - ${MYSQL_VOLUME}:/var/lib/mysql
+
+networks:
+  ${MYSQL_NETWORK}:
+    driver: bridge
+
+volumes:
+  ${MYSQL_VOLUME}:
