@@ -1,3 +1,4 @@
+<!-- updateCommentsInBatchProcess.php -->
 <?php
 
 header("Access-Control-Allow-Origin: *");
