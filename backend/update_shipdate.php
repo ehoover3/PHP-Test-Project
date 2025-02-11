@@ -6,58 +6,80 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+initializeEnvironment();
+$conn = createDatabaseConnection();
+$records = fetchRecords($conn);
+$updatedCount = processRecords($conn, $records);
+$conn->close();
 
-$host = $_ENV['DB_HOST'];
-$username = $_ENV['DB_USERNAME'];
-$password = $_ENV['DB_PASSWORD'];
-$dbname = $_ENV['DB_NAME'];
+echo json_encode(['message' => "Updated $updatedCount records successfully."]);
 
-$conn = new mysqli($host, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die(json_encode(['message' => 'Connection failed: ' . $conn->connect_error]));
+function initializeEnvironment()
+{
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
 }
 
-$sql = "SELECT orderid, comments, shipdate_expected FROM sweetwater_test WHERE comments LIKE '%Expected Ship Date:%'";
-$result = $conn->query($sql);
-
-if ($result === false) {
-    die(json_encode(['message' => 'Query failed: ' . $conn->error]));
+function createDatabaseConnection()
+{
+    $conn = new mysqli($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_NAME']);
+    if ($conn->connect_error) {
+        die(json_encode(['message' => 'Connection failed: ' . $conn->connect_error]));
+    }
+    return $conn;
 }
 
-$updated_count = 0;
+function fetchRecords($conn)
+{
+    $sql = "SELECT orderid, comments, shipdate_expected FROM sweetwater_test WHERE comments LIKE '%Expected Ship Date:%'";
+    $result = $conn->query($sql);
+    if ($result === false) {
+        die(json_encode(['message' => 'Query failed: ' . $conn->error]));
+    }
+    return $result;
+}
 
-while ($row = $result->fetch_assoc()) {
+function processRecords($conn, $records)
+{
+    $updatedCount = 0;
+    while ($row = $records->fetch_assoc()) {
+        if (updateRecord($conn, $row)) {
+            $updatedCount++;
+        }
+    }
+    return $updatedCount;
+}
+
+function updateRecord($conn, $row)
+{
     $orderid = $row['orderid'];
     $comments = $row['comments'];
-    $shipdate_expected = $row['shipdate_expected'];
+    $shipdateExpected = $row['shipdate_expected'];
 
     if (preg_match('/Expected Ship Date:\s*(\d{2}\/\d{2}\/\d{2})/', $comments, $matches)) {
         $date = DateTime::createFromFormat('m/d/y', $matches[1]);
-
         if ($date) {
-            $formatted_date = $date->format('Y-m-d');
-            $updated_comments = preg_replace('/Expected Ship Date:\s*\d{2}\/\d{2}\/\d{2}\s*/', '', $comments);
-
-            if ($shipdate_expected === null || $shipdate_expected == "0000-00-00") {
-                $update_sql = "UPDATE sweetwater_test SET shipdate_expected = ?, comments = ? WHERE orderid = ?";
-                $stmt = $conn->prepare($update_sql);
-                $stmt->bind_param("ssi", $formatted_date, $updated_comments, $orderid);
-            } else {
-                $update_sql = "UPDATE sweetwater_test SET comments = ? WHERE orderid = ?";
-                $stmt = $conn->prepare($update_sql);
-                $stmt->bind_param("si", $updated_comments, $orderid);
-            }
-
-            $stmt->execute();
-            $stmt->close();
-
-            $updated_count++;
+            $formattedDate = $date->format('Y-m-d');
+            $updatedComments = preg_replace('/Expected Ship Date:\s*\d{2}\/\d{2}\/\d{2}\s*/', '', $comments);
+            return executeUpdate($conn, $orderid, $formattedDate, $updatedComments, $shipdateExpected);
         }
     }
+    return false;
 }
 
-$conn->close();
-echo json_encode(['message' => "Updated $updated_count records successfully."]);
+function executeUpdate($conn, $orderid, $formattedDate, $updatedComments, $shipdateExpected)
+{
+    if ($shipdateExpected === null || $shipdateExpected == "0000-00-00") {
+        $updateSql = "UPDATE sweetwater_test SET shipdate_expected = ?, comments = ? WHERE orderid = ?";
+        $stmt = $conn->prepare($updateSql);
+        $stmt->bind_param("ssi", $formattedDate, $updatedComments, $orderid);
+    } else {
+        $updateSql = "UPDATE sweetwater_test SET comments = ? WHERE orderid = ?";
+        $stmt = $conn->prepare($updateSql);
+        $stmt->bind_param("si", $updatedComments, $orderid);
+    }
+
+    $stmt->execute();
+    $stmt->close();
+    return true;
+}
