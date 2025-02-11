@@ -18,14 +18,21 @@ if ($conn->connect_error) {
 $sql = "SELECT orderid, comments, shipdate_expected FROM sweetwater_test";
 $result = $conn->query($sql);
 
+$comments = [];
+
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        echo "Order ID: " . $row["orderid"] . "<br>";
-        echo "Comments: " . $row["comments"] . "<br>";
-        echo "Expected Ship Date: " . ($row["shipdate_expected"] ? $row["shipdate_expected"] : 'NULL') . "<br><br>";
+        $comments[] = [
+            'orderid' => $row["orderid"],
+            'comments' => $row["comments"],
+            'shipdate_expected' => $row["shipdate_expected"] ? $row["shipdate_expected"] : null
+        ];
     }
 } else {
-    echo "No results found.";
+    $comments = ["message" => "No results found."];
 }
 
 $conn->close();
+
+header('Content-Type: application/json');
+echo json_encode($comments);
