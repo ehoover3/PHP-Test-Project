@@ -11,19 +11,27 @@
       <h1>Order Comments</h1>
 
       <div class="nav-buttons">
-        <button onclick="showCategory('all')">All</button>
+        <button onclick="showCategory('all')" class="selected">All</button>
         <button onclick="showCategory('candy')">Candy</button>
-        <button onclick="showCategory('call')">Call Me / Don't Call Me</button>
+        <button onclick="showCategory('call')">Call / Don't Call</button>
         <button onclick="showCategory('referred')">Who Referred Me</button>
         <button onclick="showCategory('signature')">Signature Requirements</button>
         <button onclick="showCategory('misc')">Miscellaneous</button>
         <button onclick="showCategory('review')">Review</button>
         <button onclick="updateAndReloadComments()">Update Comments</button>
       </div>
+      <div class="sort-buttons">
+        <button onclick="setSort('orderid')">Sort by Order ID</button>
+        <button onclick="setSort('comments')">Sort by Comments</button>
+        <button onclick="setSort('shipdate_expected')">Sort by Expected Ship Date</button>
+      </div>
 
-      <p class="highlight-explanation">Some comments are highlighted because the expected ship date is missing <br />and the comment references a specific date, day of the week, or month.</p>
+      <p class="highlight-explanation">
+        Some comments are highlighted because the expected ship date is missing
+        <br />and the comment references a specific date, day of the week, or month.
+      </p>
 
-      <div id="all" class="category-container"></div>
+      <div id="all" class="category-container active"></div>
       <div id="candy" class="category-container"></div>
       <div id="call" class="category-container"></div>
       <div id="referred" class="category-container"></div>
@@ -34,6 +42,37 @@
 
     <script>
       let commentsData = [];
+      let currentSort = "orderid";
+
+      function setSort(sortKey) {
+        currentSort = sortKey;
+        const selectedButton = document.querySelector(".nav-buttons .selected");
+        const category = selectedButton ? selectedButton.getAttribute("onclick").match(/'([^']+)'/)[1] : "all";
+        showCategory(category);
+      }
+
+      function sortComments(comments) {
+        return comments.sort((a, b) => {
+          if (currentSort === "orderid") {
+            return Number(a.orderid) - Number(b.orderid);
+          } else if (currentSort === "comments") {
+            return a.comments.localeCompare(b.comments);
+          } else if (currentSort === "shipdate_expected") {
+            return (a.shipdate_expected || "").localeCompare(b.shipdate_expected || "");
+          }
+          return 0;
+        });
+      }
+
+      function displayComments(comments, container) {
+        container.innerHTML = "";
+        const sortedComments = sortComments(comments);
+        sortedComments.forEach((comment) => {
+          const div = createCommentElement(comment);
+          highlightCommentForReview(comment, div);
+          container.appendChild(div);
+        });
+      }
 
       async function fetchComments() {
         try {
@@ -53,8 +92,7 @@
       }
 
       function showCategory(category) {
-        const categories = document.querySelectorAll(".category-container");
-        categories.forEach((categoryDiv) => {
+        document.querySelectorAll(".category-container").forEach((categoryDiv) => {
           categoryDiv.classList.remove("active");
         });
 
@@ -64,12 +102,12 @@
         const filteredComments = filterCommentsByCategory(category);
         displayComments(filteredComments, selectedCategory);
 
-        const buttons = document.querySelectorAll(".nav-buttons button");
-        buttons.forEach((button) => {
+        document.querySelectorAll(".nav-buttons button").forEach((button) => {
           button.classList.remove("selected");
         });
+
         const selectedButton = document.querySelector(`.nav-buttons button[onclick="showCategory('${category}')"]`);
-        selectedButton.classList.add("selected");
+        if (selectedButton) selectedButton.classList.add("selected");
       }
 
       function filterCommentsByCategory(category) {
@@ -96,38 +134,15 @@
         });
       }
 
-      function displayComments(comments, container) {
-        container.innerHTML = "";
-        if (comments.length > 0) {
-          const sortedComments = comments.sort((a, b) => {
-            const isHighlightedA = isCommentHighlighted(a);
-            const isHighlightedB = isCommentHighlighted(b);
-            return isHighlightedB - isHighlightedA;
-          });
-
-          sortedComments.forEach((comment) => {
-            const div = createCommentElement(comment);
-            highlightCommentForReview(comment, div);
-            container.appendChild(div);
-          });
-        } else {
-          container.innerHTML = "<p class='no-comments'>No comments available for this category.</p>";
-        }
-      }
-
       function isCommentHighlighted(comment) {
         const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
         const monthsOfYear = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
         const dateRegex = /\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\b/;
-
         const containsDayOfWeek = daysOfWeek.some((day) => comment.comments.toLowerCase().includes(day));
         const containsMonth = monthsOfYear.some((month) => comment.comments.toLowerCase().includes(month));
         const containsDate = dateRegex.test(comment.comments);
-
         const containsMonthWord = /\bmonth\b|\bmonths\b/.test(comment.comments.toLowerCase());
-        const containsSpecificMonth = monthsOfYear.some((month) => comment.comments.toLowerCase().includes(month));
-
-        return !comment.shipdate_expected && (containsDayOfWeek || (containsSpecificMonth && !containsMonthWord) || containsDate);
+        return !comment.shipdate_expected && (containsDayOfWeek || (containsMonth && !containsMonthWord) || containsDate);
       }
 
       function createCommentElement(comment) {
