@@ -21,7 +21,7 @@
     <script>
       async function fetchComments() {
         try {
-          const response = await fetch("backend/read.php");
+          const response = await fetch("http://localhost:8081/read.php");
           const data = await response.json();
 
           const commentsContainer = document.getElementById("comments-container");
