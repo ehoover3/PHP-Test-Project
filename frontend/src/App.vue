@@ -1,8 +1,9 @@
+<!-- App.vue -->
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import NavigationButtons from "./NavigationButtons.vue";
-import SortButtons from "./SortButtons.vue";
-import CommentList from "./CommentList.vue";
+import NavigationButtons from "./components/NavigationButtons.vue";
+import SortButtons from "./components/SortButtons.vue";
+import CommentList from "./components/CommentList.vue";
 
 const commentsData = ref([]);
 const currentSort = ref("orderid");
@@ -71,7 +72,6 @@ async function fetchComments() {
   try {
     const response = await fetch("http://localhost:8081/readComments.php");
     const data = await response.json();
-
     if (Array.isArray(data) && data.length > 0) {
       commentsData.value = data;
     }
@@ -99,9 +99,7 @@ onMounted(() => {
 <template>
   <div class="container">
     <h1>Order Comments</h1>
-
-    <NavigationButtons v-model:currentCategory="currentCategory" @updateComments="updateAndReloadComments" />
-
+    <NavigationButtons v-model="currentCategory" @updateComments="updateAndReloadComments" />
     <SortButtons :currentSort="currentSort" :sortDirection="sortDirection" @setSort="setSort" />
 
     <p class="highlight-explanation">

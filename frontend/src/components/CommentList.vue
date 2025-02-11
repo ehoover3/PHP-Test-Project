@@ -1,7 +1,8 @@
+<!-- components/CommentList.vue -->
 <script setup>
 import { defineProps } from "vue";
 
-const props = defineProps({
+defineProps({
   comments: {
     type: Array,
     required: true,
@@ -24,13 +25,14 @@ function isCommentHighlighted(comment) {
 
 <template>
   <div class="comments-container">
-    <div v-for="comment in comments" :key="comment.orderid" class="comment" :class="{ highlight: isCommentHighlighted(comment) }">
-      <strong>Order ID:</strong> {{ comment.orderid }}<br />
-      <strong>Comments:</strong> {{ comment.comments }}<br />
-      <strong>Expected Ship Date:</strong>
-      <span>{{ comment.shipdate_expected || "N/A" }}</span>
+    <div v-if="comments && Array.isArray(comments) && comments.length > 0">
+      <div v-for="comment in comments" :key="comment.orderid" class="comment" :class="{ highlight: isCommentHighlighted(comment) }">
+        <strong>Order ID:</strong> {{ comment.orderid }}<br />
+        <strong>Comments:</strong> {{ comment.comments }}<br />
+        <strong>Expected Ship Date:</strong>
+        <span>{{ comment.shipdate_expected || "N/A" }}</span>
+      </div>
     </div>
-
-    <p v-if="!comments.length" class="no-comments">No comments available.</p>
+    <p v-if="!comments || !comments.length" class="no-comments">No comments available.</p>
   </div>
 </template>
