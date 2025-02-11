@@ -12,11 +12,11 @@ services:
     networks:
       - ${MYSQL_NETWORK}
     volumes:
-      - ${MYSQL_VOLUME}:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
 networks:
   ${MYSQL_NETWORK}:
     driver: bridge
 
 volumes:
-  ${MYSQL_VOLUME}:
+  mysql_data:
