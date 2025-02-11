@@ -17,7 +17,7 @@
         <button onclick="showCategory('referred')">Who Referred Me</button>
         <button onclick="showCategory('signature')">Signature Requirements</button>
         <button onclick="showCategory('misc')">Miscellaneous</button>
-        <button onclick="showCategory('review')">Review</button>
+        <button onclick="showCategory('missingShipDate')">Missing Ship Date</button>
         <button onclick="updateAndReloadComments()">Update Comments</button>
       </div>
       <div class="sort-buttons">
@@ -37,7 +37,7 @@
       <div id="referred" class="category-container"></div>
       <div id="signature" class="category-container"></div>
       <div id="misc" class="category-container"></div>
-      <div id="review" class="category-container"></div>
+      <div id="missingShipDate" class="category-container"></div>
     </div>
 
     <script>
@@ -124,7 +124,7 @@
       function filterCommentsByCategory(category) {
         if (category === "all") {
           return commentsData;
-        } else if (category === "review") {
+        } else if (category === "missingShipDate") {
           return commentsData.filter((comment) => !comment.shipdate_expected);
         }
         return commentsData.filter((comment) => {
