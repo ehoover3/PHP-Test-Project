@@ -19,6 +19,11 @@ if ($conn->connect_error) {
 $sql = "SELECT orderid, comments, shipdate_expected FROM sweetwater_test";
 $result = $conn->query($sql);
 
+if ($result === false) {
+    echo json_encode(['message' => 'Query failed: ' . $conn->error]);
+    exit;
+}
+
 if ($result->num_rows > 0) {
     $comments = [];
     while ($row = $result->fetch_assoc()) {
