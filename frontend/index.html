@@ -39,6 +39,7 @@
       <button onclick="showCategory('signature')">Signature Requirements</button>
       <button onclick="showCategory('misc')">Miscellaneous</button>
       <button onclick="showCategory('review')">Review</button>
+      <!-- Added Review button -->
     </div>
 
     <div id="all" class="category-container"></div>
@@ -48,6 +49,7 @@
     <div id="signature" class="category-container"></div>
     <div id="misc" class="category-container"></div>
     <div id="review" class="category-container"></div>
+    <!-- Added Review category -->
 
     <script>
       let commentsData = [];
@@ -85,6 +87,8 @@
       function filterCommentsByCategory(category) {
         if (category === "all") {
           return commentsData;
+        } else if (category === "review") {
+          return commentsData.filter((comment) => !comment.shipdate_expected);
         }
         return commentsData.filter((comment) => {
           switch (category) {
@@ -98,8 +102,6 @@
               return comment.comments.toLowerCase().includes("signature");
             case "misc":
               return !["candy", "call", "referred", "signature"].some((keyword) => comment.comments.toLowerCase().includes(keyword));
-            case "review":
-              return comment.shipdate_expected === null;
             default:
               return false;
           }
@@ -109,18 +111,62 @@
       function displayComments(comments, container) {
         container.innerHTML = "";
         if (comments.length > 0) {
-          comments.forEach((comment) => {
-            const div = document.createElement("div");
-            div.classList.add("comment");
-            div.innerHTML = `
-              <strong>Order ID:</strong> ${comment.orderid}<br>
-              <strong>Comments:</strong> ${comment.comments}<br>
-              <strong>Expected Ship Date:</strong> ${comment.shipdate_expected ? comment.shipdate_expected : "N/A"}<br><br>
-            `;
+          const sortedComments = comments.sort((a, b) => {
+            const isHighlightedA = isCommentHighlighted(a);
+            const isHighlightedB = isCommentHighlighted(b);
+            return isHighlightedB - isHighlightedA;
+          });
+
+          sortedComments.forEach((comment) => {
+            const div = createCommentElement(comment);
+            highlightCommentForReview(comment, div);
             container.appendChild(div);
           });
         } else {
           container.innerHTML = "<p>No comments available for this category.</p>";
+        }
+      }
+
+      function isCommentHighlighted(comment) {
+        const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+        const monthsOfYear = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+        const dateRegex = /\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\b/;
+
+        const containsDayOfWeek = daysOfWeek.some((day) => comment.comments.toLowerCase().includes(day));
+        const containsMonth = monthsOfYear.some((month) => comment.comments.toLowerCase().includes(month));
+        const containsDate = dateRegex.test(comment.comments);
+
+        const containsMonthWord = /\bmonth\b|\bmonths\b/.test(comment.comments.toLowerCase());
+        const containsSpecificMonth = monthsOfYear.some((month) => comment.comments.toLowerCase().includes(month));
+
+        return !comment.shipdate_expected && (containsDayOfWeek || (containsSpecificMonth && !containsMonthWord) || containsDate);
+      }
+
+      function createCommentElement(comment) {
+        const div = document.createElement("div");
+        div.classList.add("comment");
+        div.innerHTML = `
+    <strong>Order ID:</strong> ${comment.orderid}<br>
+    <strong>Comments:</strong> ${comment.comments}<br>
+    <strong>Expected Ship Date:</strong> ${comment.shipdate_expected ? comment.shipdate_expected : "N/A"}<br><br>
+  `;
+        return div;
+      }
+
+      function highlightCommentForReview(comment, div) {
+        const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+        const monthsOfYear = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+        const dateRegex = /\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\b/;
+
+        const containsDayOfWeek = daysOfWeek.some((day) => comment.comments.toLowerCase().includes(day));
+        const containsMonth = monthsOfYear.some((month) => comment.comments.toLowerCase().includes(month));
+        const containsDate = dateRegex.test(comment.comments);
+
+        const containsMonthWord = /\bmonth\b|\bmonths\b/.test(comment.comments.toLowerCase());
+        const containsSpecificMonth = monthsOfYear.some((month) => comment.comments.toLowerCase().includes(month));
+
+        if (!comment.shipdate_expected && (containsDayOfWeek || (containsSpecificMonth && !containsMonthWord) || containsDate)) {
+          div.style.backgroundColor = "#f9f9a6";
         }
       }
 
