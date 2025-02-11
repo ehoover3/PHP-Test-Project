@@ -19,6 +19,33 @@ function formatCategoryName(category) {
     <button v-for="category in categories" :key="category" @click="emit('update:modelValue', category)" :class="{ selected: modelValue === category }">
       {{ formatCategoryName(category) }}
     </button>
-    <button @click="emit('updateComments')">Update Comments</button>
   </div>
 </template>
+
+<style scoped>
+.nav-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.nav-buttons button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.nav-buttons button.selected {
+  background-color: #0056b3;
+}
+
+.nav-buttons button:hover {
+  background-color: #0056b3;
+}
+</style>

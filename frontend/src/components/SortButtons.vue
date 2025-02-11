@@ -26,3 +26,31 @@ const sortOptions = [
     </button>
   </div>
 </template>
+
+<style scoped>
+.sort-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.sort-buttons button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.sort-buttons button.selected {
+  background-color: #218838;
+}
+
+.sort-buttons button:hover {
+  background-color: #218838;
+}
+</style>

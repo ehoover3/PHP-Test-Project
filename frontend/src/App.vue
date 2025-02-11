@@ -9,6 +9,7 @@ const commentsData = ref([]);
 const currentSort = ref("orderid");
 const sortDirection = ref("asc");
 const currentCategory = ref("all");
+const isLoaded = ref(false);
 
 const sortedAndFilteredComments = computed(() => {
   const filtered = filterCommentsByCategory(commentsData.value, currentCategory.value);
@@ -81,11 +82,13 @@ async function fetchComments() {
 }
 
 async function updateAndReloadComments() {
+  if (isLoaded.value) return;
   try {
     await fetch("http://localhost:8081/updateCommentsInBatchProcess.php", {
       method: "POST",
     });
     await fetchComments();
+    isLoaded.value = true;
   } catch (error) {
     console.error("Error updating comments:", error);
   }
@@ -110,3 +113,51 @@ onMounted(() => {
     <CommentList :comments="sortedAndFilteredComments" />
   </div>
 </template>
+
+<style scoped>
+.container {
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+.highlight-explanation {
+  font-size: 1rem;
+  color: #555;
+  background-color: #fff3cd;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.comments-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comment {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.comment.highlight {
+  background-color: #fff3cd;
+}
+
+.no-comments {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #777;
+}
+</style>

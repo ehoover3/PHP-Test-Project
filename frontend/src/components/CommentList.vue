@@ -29,10 +29,36 @@ function isCommentHighlighted(comment) {
       <div v-for="comment in comments" :key="comment.orderid" class="comment" :class="{ highlight: isCommentHighlighted(comment) }">
         <strong>Order ID:</strong> {{ comment.orderid }}<br />
         <strong>Comments:</strong> {{ comment.comments }}<br />
-        <strong>Expected Ship Date:</strong>
+        <strong>Expected Ship Date: </strong>
         <span>{{ comment.shipdate_expected || "N/A" }}</span>
       </div>
     </div>
     <p v-if="!comments || !comments.length" class="no-comments">No comments available.</p>
   </div>
 </template>
+
+<style scoped>
+.comments-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.comment {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.comment.highlight {
+  background-color: #fff3cd;
+}
+
+.no-comments {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #777;
+}
+</style>
