@@ -20,7 +20,7 @@ if ($conn->connect_error) {
     die(json_encode(['message' => 'Connection failed: ' . $conn->connect_error]));
 }
 
-$sql = "SELECT orderid, comments FROM sweetwater_test WHERE shipdate_expected IS NULL";
+$sql = "SELECT orderid, comments, shipdate_expected FROM sweetwater_test WHERE comments LIKE '%Expected Ship Date:%'";
 $result = $conn->query($sql);
 
 if ($result === false) {
@@ -32,16 +32,25 @@ $updated_count = 0;
 while ($row = $result->fetch_assoc()) {
     $orderid = $row['orderid'];
     $comments = $row['comments'];
+    $shipdate_expected = $row['shipdate_expected'];
 
     if (preg_match('/Expected Ship Date:\s*(\d{2}\/\d{2}\/\d{2})/', $comments, $matches)) {
         $date = DateTime::createFromFormat('m/d/y', $matches[1]);
 
         if ($date) {
             $formatted_date = $date->format('Y-m-d');
+            $updated_comments = preg_replace('/Expected Ship Date:\s*\d{2}\/\d{2}\/\d{2}\s*/', '', $comments);
 
-            $update_sql = "UPDATE sweetwater_test SET shipdate_expected = ? WHERE orderid = ?";
-            $stmt = $conn->prepare($update_sql);
-            $stmt->bind_param("si", $formatted_date, $orderid);
+            if ($shipdate_expected === null || $shipdate_expected == "0000-00-00") {
+                $update_sql = "UPDATE sweetwater_test SET shipdate_expected = ?, comments = ? WHERE orderid = ?";
+                $stmt = $conn->prepare($update_sql);
+                $stmt->bind_param("ssi", $formatted_date, $updated_comments, $orderid);
+            } else {
+                $update_sql = "UPDATE sweetwater_test SET comments = ? WHERE orderid = ?";
+                $stmt = $conn->prepare($update_sql);
+                $stmt->bind_param("si", $updated_comments, $orderid);
+            }
+
             $stmt->execute();
             $stmt->close();
 
