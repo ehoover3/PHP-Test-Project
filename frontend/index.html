@@ -4,80 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sweetwater Comments</title>
-    <style>
-      body {
-        font-family: "Arial", sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f7f7f7;
-      }
-      h1 {
-        text-align: center;
-        margin-top: 20px;
-        color: #333;
-      }
-      .container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-      .nav-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-        margin-bottom: 20px;
-      }
-      .nav-buttons button {
-        padding: 12px 20px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s ease;
-      }
-      .nav-buttons button:hover {
-        background-color: #0056b3;
-      }
-      .category-container {
-        display: none;
-      }
-      .active {
-        display: block;
-      }
-      .comment {
-        padding: 15px;
-        border-bottom: 1px solid #ccc;
-        margin-bottom: 12px;
-        border-radius: 6px;
-        background-color: #fafafa;
-      }
-      .comment strong {
-        font-weight: bold;
-        color: #007bff;
-      }
-      .comment span {
-        color: #333;
-      }
-      .highlight {
-        background-color: #f9f9a6;
-      }
-      .no-comments {
-        text-align: center;
-        color: #888;
-        font-size: 18px;
-      }
-      .highlight-explanation {
-        text-align: center;
-        margin-top: 15px;
-        font-size: 16px;
-        color: #555;
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
@@ -216,18 +143,7 @@
       }
 
       function highlightCommentForReview(comment, div) {
-        const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-        const monthsOfYear = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
-        const dateRegex = /\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\b/;
-
-        const containsDayOfWeek = daysOfWeek.some((day) => comment.comments.toLowerCase().includes(day));
-        const containsMonth = monthsOfYear.some((month) => comment.comments.toLowerCase().includes(month));
-        const containsDate = dateRegex.test(comment.comments);
-
-        const containsMonthWord = /\bmonth\b|\bmonths\b/.test(comment.comments.toLowerCase());
-        const containsSpecificMonth = monthsOfYear.some((month) => comment.comments.toLowerCase().includes(month));
-
-        if (!comment.shipdate_expected && (containsDayOfWeek || (containsSpecificMonth && !containsMonthWord) || containsDate)) {
+        if (isCommentHighlighted(comment)) {
           div.classList.add("highlight");
         }
       }
