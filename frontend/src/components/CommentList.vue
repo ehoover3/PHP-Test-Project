@@ -18,7 +18,6 @@ function isCommentHighlighted(comment) {
   const containsMonth = monthsOfYear.some((month) => lowerComments.includes(month));
   const containsDate = dateRegex.test(comment.comments);
   const containsMonthWord = /\bmonth\b|\bmonths\b/.test(lowerComments);
-
   return !comment.shipdate_expected && (containsDayOfWeek || (containsMonth && !containsMonthWord) || containsDate);
 }
 </script>
