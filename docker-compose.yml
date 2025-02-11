@@ -1,11 +1,6 @@
 services:
   mysql:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      args:
-        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-        MYSQL_DATABASE: ${MYSQL_DATABASE}
+    image: mysql:8.0
     container_name: ${MYSQL_CONTAINER_NAME}
     ports:
       - "${MYSQL_PORT}:${MYSQL_PORT}"
