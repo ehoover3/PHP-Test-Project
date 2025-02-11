@@ -15,7 +15,7 @@ services:
       - mysql_data:/var/lib/mysql
 
 networks:
-  ${MYSQL_NETWORK}:
+  mysql_network:
     driver: bridge
 
 volumes:
