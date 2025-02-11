@@ -91,6 +91,7 @@
         <button onclick="showCategory('signature')">Signature Requirements</button>
         <button onclick="showCategory('misc')">Miscellaneous</button>
         <button onclick="showCategory('review')">Review</button>
+        <button onclick="updateAndReloadComments()">Update Comments</button>
       </div>
 
       <p class="highlight-explanation">Some comments are highlighted because the expected ship date is missing <br />and the comment references a specific date, day of the week, or month.</p>
@@ -228,6 +229,19 @@
 
         if (!comment.shipdate_expected && (containsDayOfWeek || (containsSpecificMonth && !containsMonthWord) || containsDate)) {
           div.classList.add("highlight");
+        }
+      }
+
+      async function updateAndReloadComments() {
+        try {
+          const updateResponse = await fetch("http://localhost:8081/updateCommentsInBatchProcess.php", {
+            method: "POST",
+          });
+          const updateResult = await updateResponse.text();
+          console.log("Update response:", updateResult);
+          await fetchComments();
+        } catch (error) {
+          console.error("Error updating comments:", error);
         }
       }
 
