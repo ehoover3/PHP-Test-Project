@@ -1,16 +1,16 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: ${MYSQL_CONTAINER_NAME}
+    container_name: ${DB_CONTAINER_NAME}
     ports:
-      - "${MYSQL_PORT}:${MYSQL_PORT}"
+      - "${DB_PORT}:${DB_PORT}"
     networks:
       - mysql_network
     volumes:
       - mysql_data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     env_file:
       - .env
 
@@ -18,7 +18,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: php-container
+    container_name: ${BACKEND_CONTAINER}
     ports:
       - "8081:80"
     volumes:
@@ -27,10 +27,10 @@ services:
     networks:
       - mysql_network
     environment:
-      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      DB_NAME: ${MYSQL_DATABASE}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
 
 networks:
   mysql_network:
