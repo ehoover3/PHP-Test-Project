@@ -43,9 +43,15 @@
     <script>
       let commentsData = [];
       let currentSort = "orderid";
+      let sortDirection = "asc";
 
       function setSort(sortKey) {
-        currentSort = sortKey;
+        if (currentSort === sortKey) {
+          sortDirection = sortDirection === "asc" ? "desc" : "asc";
+        } else {
+          currentSort = sortKey;
+          sortDirection = "asc";
+        }
         const selectedButton = document.querySelector(".nav-buttons .selected");
         const category = selectedButton ? selectedButton.getAttribute("onclick").match(/'([^']+)'/)[1] : "all";
         showCategory(category);
@@ -53,14 +59,15 @@
 
       function sortComments(comments) {
         return comments.sort((a, b) => {
+          let comparison = 0;
           if (currentSort === "orderid") {
-            return Number(a.orderid) - Number(b.orderid);
+            comparison = Number(a.orderid) - Number(b.orderid);
           } else if (currentSort === "comments") {
-            return a.comments.localeCompare(b.comments);
+            comparison = a.comments.localeCompare(b.comments);
           } else if (currentSort === "shipdate_expected") {
-            return (a.shipdate_expected || "").localeCompare(b.shipdate_expected || "");
+            comparison = (a.shipdate_expected || "").localeCompare(b.shipdate_expected || "");
           }
-          return 0;
+          return sortDirection === "asc" ? comparison : -comparison;
         });
       }
 
