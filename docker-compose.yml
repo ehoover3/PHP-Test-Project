@@ -19,6 +19,21 @@ services:
     env_file:
       - .env
 
+  php:
+    image: php:8.0-apache
+    container_name: php-container
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend:/var/www/html
+    networks:
+      - mysql_network
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+
 networks:
   mysql_network:
     driver: bridge
