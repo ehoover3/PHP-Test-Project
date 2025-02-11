@@ -12,36 +12,116 @@
         border-bottom: 1px solid #ccc;
         padding: 10px 0;
       }
+      .nav-buttons {
+        margin-bottom: 20px;
+      }
+      .nav-buttons button {
+        padding: 10px;
+        margin-right: 10px;
+        cursor: pointer;
+      }
+      .category-container {
+        display: none;
+      }
+      .active {
+        display: block;
+      }
     </style>
   </head>
   <body>
     <h1>Order Comments</h1>
-    <div id="comments-container"></div>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+      <button onclick="showCategory('all')">All</button>
+      <button onclick="showCategory('candy')">Candy</button>
+      <button onclick="showCategory('call')">Call Me / Don't Call Me</button>
+      <button onclick="showCategory('referred')">Who Referred Me</button>
+      <button onclick="showCategory('signature')">Signature Requirements</button>
+      <button onclick="showCategory('misc')">Miscellaneous</button>
+    </div>
+
+    <!-- Comments Containers for Each Category -->
+    <div id="all" class="category-container"></div>
+    <div id="candy" class="category-container"></div>
+    <div id="call" class="category-container"></div>
+    <div id="referred" class="category-container"></div>
+    <div id="signature" class="category-container"></div>
+    <div id="misc" class="category-container"></div>
 
     <script>
+      let commentsData = [];
+
       async function fetchComments() {
         try {
           const response = await fetch("http://localhost:8081/read.php");
           const data = await response.json();
 
-          const commentsContainer = document.getElementById("comments-container");
           if (Array.isArray(data) && data.length > 0) {
-            data.forEach((comment) => {
-              const div = document.createElement("div");
-              div.classList.add("comment");
-              div.innerHTML = `
-                            <strong>Order ID:</strong> ${comment.orderid}<br>
-                            <strong>Comments:</strong> ${comment.comments}<br>
-                            <strong>Expected Ship Date:</strong> ${comment.shipdate_expected ? comment.shipdate_expected : "N/A"}<br><br>
-                        `;
-              commentsContainer.appendChild(div);
-            });
+            commentsData = data;
+            showCategory("all"); // Initially show all comments
           } else {
-            commentsContainer.innerHTML = `<p>${data.message || "No comments available."}</p>`;
+            document.getElementById("all").innerHTML = `<p>${data.message || "No comments available."}</p>`;
           }
         } catch (error) {
           console.error("Error fetching comments:", error);
-          document.getElementById("comments-container").innerHTML = "<p>Error loading comments.</p>";
+          document.getElementById("all").innerHTML = "<p>Error loading comments.</p>";
+        }
+      }
+
+      function showCategory(category) {
+        // Hide all categories
+        const categories = document.querySelectorAll(".category-container");
+        categories.forEach((categoryDiv) => {
+          categoryDiv.classList.remove("active");
+        });
+
+        // Show the selected category
+        const selectedCategory = document.getElementById(category);
+        selectedCategory.classList.add("active");
+
+        // Filter and display comments based on category
+        const filteredComments = filterCommentsByCategory(category);
+        displayComments(filteredComments, selectedCategory);
+      }
+
+      function filterCommentsByCategory(category) {
+        if (category === "all") {
+          return commentsData;
+        }
+        return commentsData.filter((comment) => {
+          switch (category) {
+            case "candy":
+              return comment.comments.toLowerCase().includes("candy");
+            case "call":
+              return comment.comments.toLowerCase().includes("call me") || comment.comments.toLowerCase().includes("don't call me");
+            case "referred":
+              return comment.comments.toLowerCase().includes("referred");
+            case "signature":
+              return comment.comments.toLowerCase().includes("signature");
+            case "misc":
+              return !["candy", "call", "referred", "signature"].some((keyword) => comment.comments.toLowerCase().includes(keyword));
+            default:
+              return false;
+          }
+        });
+      }
+
+      function displayComments(comments, container) {
+        container.innerHTML = ""; // Clear previous content
+        if (comments.length > 0) {
+          comments.forEach((comment) => {
+            const div = document.createElement("div");
+            div.classList.add("comment");
+            div.innerHTML = `
+              <strong>Order ID:</strong> ${comment.orderid}<br>
+              <strong>Comments:</strong> ${comment.comments}<br>
+              <strong>Expected Ship Date:</strong> ${comment.shipdate_expected ? comment.shipdate_expected : "N/A"}<br><br>
+            `;
+            container.appendChild(div);
+          });
+        } else {
+          container.innerHTML = "<p>No comments available for this category.</p>";
         }
       }
 
