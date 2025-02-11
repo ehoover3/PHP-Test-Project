@@ -15,7 +15,9 @@ services:
       - .env
 
   php:
-    image: php:8.0-apache
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: php-container
     ports:
       - "8081:80"
