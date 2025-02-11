@@ -60,13 +60,17 @@
       function sortComments(comments) {
         return comments.sort((a, b) => {
           let comparison = 0;
+
           if (currentSort === "orderid") {
             comparison = Number(a.orderid) - Number(b.orderid);
           } else if (currentSort === "comments") {
             comparison = a.comments.localeCompare(b.comments);
           } else if (currentSort === "shipdate_expected") {
-            comparison = (a.shipdate_expected || "").localeCompare(b.shipdate_expected || "");
+            const dateA = a.shipdate_expected ? new Date(a.shipdate_expected) : new Date(0);
+            const dateB = b.shipdate_expected ? new Date(b.shipdate_expected) : new Date(0);
+            comparison = dateA - dateB;
           }
+
           return sortDirection === "asc" ? comparison : -comparison;
         });
       }
