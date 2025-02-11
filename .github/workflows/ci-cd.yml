@@ -11,16 +11,11 @@ on:
 jobs:
   build_backend:
     runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8.0
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping --silent" --health-interval=5s --health-timeout=3s --health-retries=5
-        env:
-          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+    env:
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_HOST: localhost
 
     steps:
       - name: Checkout code
@@ -34,6 +29,10 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/download/v2.18.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
+
+      - name: Copy .env file
+        run: |
+          cp .env .env
 
       - name: Build Docker containers
         run: docker-compose -f docker-compose.yml up -d
