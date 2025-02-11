@@ -71,6 +71,12 @@
         color: #888;
         font-size: 18px;
       }
+      .highlight-explanation {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 16px;
+        color: #555;
+      }
     </style>
   </head>
   <body>
@@ -86,6 +92,8 @@
         <button onclick="showCategory('misc')">Miscellaneous</button>
         <button onclick="showCategory('review')">Review</button>
       </div>
+
+      <p class="highlight-explanation">Some comments are highlighted because the expected ship date is missing <br />and the comment references a specific date, day of the week, or month.</p>
 
       <div id="all" class="category-container"></div>
       <div id="candy" class="category-container"></div>

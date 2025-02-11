@@ -6,47 +6,37 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-initializeEnvironment();
-$conn = createDatabaseConnection();
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+$conn = new mysqli($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_NAME']);
 $records = fetchRecords($conn);
 $updatedCount = processRecords($conn, $records);
 $conn->close();
 
 echo json_encode(['message' => "Updated $updatedCount records successfully."]);
 
-function initializeEnvironment()
-{
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-    $dotenv->load();
-}
-
-function createDatabaseConnection()
-{
-    $conn = new mysqli($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_NAME']);
-    if ($conn->connect_error) {
-        die(json_encode(['message' => 'Connection failed: ' . $conn->connect_error]));
-    }
-    return $conn;
-}
-
 function fetchRecords($conn)
 {
     $sql = "SELECT orderid, comments, shipdate_expected FROM sweetwater_test WHERE comments LIKE '%Expected Ship Date:%'";
     $result = $conn->query($sql);
+
     if ($result === false) {
         die(json_encode(['message' => 'Query failed: ' . $conn->error]));
     }
+
     return $result;
 }
 
 function processRecords($conn, $records)
 {
     $updatedCount = 0;
+
     while ($row = $records->fetch_assoc()) {
         if (updateRecord($conn, $row)) {
             $updatedCount++;
         }
     }
+
     return $updatedCount;
 }
 
@@ -64,6 +54,7 @@ function updateRecord($conn, $row)
             return executeUpdate($conn, $orderid, $formattedDate, $updatedComments, $shipdateExpected);
         }
     }
+
     return false;
 }
 
@@ -81,5 +72,6 @@ function executeUpdate($conn, $orderid, $formattedDate, $updatedComments, $shipd
 
     $stmt->execute();
     $stmt->close();
+
     return true;
 }
