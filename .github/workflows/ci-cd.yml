@@ -60,19 +60,14 @@ jobs:
       - name: Run Frontend tests
         run: |
           cd frontend
-          npm run test  # Adjust if you're using a different test command
+          npm run test
 
   deploy:
     runs-on: ubuntu-latest
     needs: [build_backend, build_frontend]
-    if: success() # Only deploy if both the backend and frontend build successfully
+    if: success()
 
     steps:
       - name: Deploy to production (example)
         run: |
-          echo "Deploying to production..."
-          # Add your deployment commands here (e.g., SSH commands to deploy the application)
-
-networks:
-  mysql_network:
-    driver: bridge
+          echo "Deploying to Google Cloud Platform..."
