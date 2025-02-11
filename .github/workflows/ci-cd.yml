@@ -12,10 +12,14 @@ jobs:
   build_backend:
     runs-on: ubuntu-latest
     env:
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_USERNAME: ${{ secrets.DB_USERNAME }}
-      DB_HOST: localhost
+      DB_CONTAINER_NAME: ${{secrets.DB_CONTAINER_NAME}}
+      DB_DATABASE: ${{secrets.DB_DATABASE}}
+      DB_NAME: ${{secrets.DB_NAME}}
+      DB_USERNAME: ${{secrets.DB_USERNAME}}
+      DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+      DB_HOST: ${{secrets.DB_HOST}}
+      DB_PORT: ${{secrets.DB_PORT}}
+      BACKEND_CONTAINER: ${{secrets.BACKEND_CONTAINER}}
 
     steps:
       - name: Checkout code
@@ -29,10 +33,6 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/download/v2.18.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
-
-      - name: Copy .env file
-        run: |
-          cp .env .env
 
       - name: Build Docker containers
         run: docker-compose -f docker-compose.yml up -d
