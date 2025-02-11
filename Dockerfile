@@ -4,4 +4,8 @@ RUN docker-php-ext-install mysqli
 
 RUN a2enmod rewrite
 
-COPY .env /var/www/html/.env
+ENV DB_NAME=${DB_NAME}
+ENV DB_USERNAME=${DB_USERNAME}
+ENV DB_PASSWORD=${DB_PASSWORD}
+ENV DB_HOST=${DB_HOST}
+ENV DB_PORT=${DB_PORT}
