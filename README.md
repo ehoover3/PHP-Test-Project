@@ -26,11 +26,13 @@ Run the following commands to set up the Docker containers and load the database
 docker-compose up -d
 docker cp backend/data/data-with-null.sql mysql-container:/data-with-null.sql
 docker exec -i mysql-container mysql -u root -prootpassword mysql -e "source /data-with-null.sql"
+cd frontend
+npm i
+npm run serve
 ```
 
 ### 3. Run the Project
 
-Once the setup is complete, visit the following URLs to run the project:
+Once the setup is complete, visit the following URL to run the project:
 
-- http://localhost:8081/updateCommentsInBatchProcess.php
-- http://127.0.0.1:5500/frontend/index.html
+- http://localhost:8083 or other localhost port
