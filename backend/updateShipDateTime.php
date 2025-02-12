@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($data['orderId']) && isset($data['shipDateTime'])) {
         try {
             $db = new Database();
-            $result = $db->updateShipDate($data['orderId'], $data['shipDateTime']);
+            $result = $db->updateShipDateTime($data['orderId'], $data['shipDateTime']);
             $db->close();
 
             if ($result) {

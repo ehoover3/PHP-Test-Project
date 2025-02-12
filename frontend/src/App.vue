@@ -71,7 +71,7 @@ function filterCommentsByCategory(comments, category) {
 
 async function fetchComments() {
   try {
-    const response = await fetch("http://localhost:8081/readComments.php");
+    const response = await fetch("http://localhost:8081/fetchComments.php");
     const data = await response.json();
     if (Array.isArray(data) && data.length > 0) {
       commentsData.value = data;
@@ -84,7 +84,7 @@ async function fetchComments() {
 async function updateAndReloadComments() {
   if (isLoaded.value) return;
   try {
-    await fetch("http://localhost:8081/updateCommentsInBatchProcess.php", {
+    await fetch("http://localhost:8081/updateCommentsBatch.php", {
       method: "POST",
     });
     await fetchComments();
@@ -107,7 +107,7 @@ onMounted(() => {
 
     <p class="highlight-explanation">
       Some comments are highlighted because the expected ship date is missing
-      <br />and the comment references a specific date, day of the week, or month.
+      <br />and the comment references a specific date, day of the week, or month. <br />This indicates an opportunity to edit the expected shipping date and time for better customer service.
     </p>
 
     <CommentList :comments="sortedAndFilteredComments" />

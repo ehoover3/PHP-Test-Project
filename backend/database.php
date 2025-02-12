@@ -83,7 +83,7 @@ class Database
 
                 // Update ship date if it's not set
                 if ($shipdateExpected === null || $shipdateExpected == "0000-00-00") {
-                    $this->updateShipDate($orderid, $formattedDate);
+                    $this->updateShipDateTime($orderid, $formattedDate);
                 }
 
                 // Update comments
@@ -110,7 +110,7 @@ class Database
         return true;
     }
 
-    public function updateShipDate($orderId, $shipDateTime)
+    public function updateShipDateTime($orderId, $shipDateTime)
     {
         $sql = "UPDATE sweetwater_test SET shipdate_expected = ? WHERE orderid = ?";
         $stmt = $this->conn->prepare($sql);

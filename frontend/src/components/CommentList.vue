@@ -35,7 +35,7 @@ function cancelEdit() {
 
 async function saveEdit(comment) {
   try {
-    const response = await fetch("http://localhost:8081/updateShipDate.php", {
+    const response = await fetch("http://localhost:8081/updateShipDateTime.php", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
