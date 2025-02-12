@@ -95,14 +95,14 @@ async function updateAndReloadComments() {
 }
 
 onMounted(() => {
-  fetchComments();
+  updateAndReloadComments();
 });
 </script>
 
 <template>
   <div class="container">
     <h1>Order Comments</h1>
-    <NavigationButtons v-model="currentCategory" @updateComments="updateAndReloadComments" />
+    <NavigationButtons v-model="currentCategory" />
     <SortButtons :currentSort="currentSort" :sortDirection="sortDirection" @setSort="setSort" />
 
     <p class="highlight-explanation">
