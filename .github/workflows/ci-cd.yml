@@ -34,6 +34,9 @@ jobs:
       - name: Install PHP dependencies (placeholder)
         run: echo "Installing PHP dependencies for the backend..."
 
+      - name: Run Backend tests (placeholder)
+        run: echo "Running backend tests..."
+
   build_frontend:
     runs-on: ubuntu-latest
 
@@ -46,6 +49,9 @@ jobs:
 
       - name: Install Frontend dependencies (placeholder)
         run: echo "Installing frontend dependencies..."
+
+      - name: Run Frontend tests (placeholder)
+        run: echo "Running frontend tests..."
 
   deploy:
     runs-on: ubuntu-latest
