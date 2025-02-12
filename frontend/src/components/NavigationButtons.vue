@@ -7,9 +7,10 @@ defineProps({
 });
 
 const emit = defineEmits(["update:modelValue", "updateComments"]);
-const categories = ["all", "candy", "call", "referred", "signature", "misc", "Missing Ship Date"];
+const categories = ["all", "candy", "call", "referred", "signature", "misc", "missingShipDate"];
 
 function formatCategoryName(category) {
+  if (category === "missingShipDate") return "Missing Ship Date";
   return category === "all" ? "All" : category.charAt(0).toUpperCase() + category.slice(1);
 }
 </script>
