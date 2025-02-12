@@ -19,6 +19,7 @@ echo "DB_USERNAME=root" >> backend/.env
 echo "DB_PASSWORD=rootpassword" >> backend/.env
 echo "DB_HOST=mysql" >> backend/.env
 echo "DB_PORT=3306" >> backend/.env
+sleep 1
 
 # Start Docker containers in detached mode
 docker-compose up -d
@@ -27,6 +28,7 @@ until docker exec mysql-container mysqladmin -u root -prootpassword ping --silen
     sleep 2
 done
 echo "MySQL container is ready!"
+sleep 3
 
 # Copy the SQL file into the MySQL container
 docker cp backend/data/data-with-null.sql mysql-container:/data-with-null.sql
@@ -35,6 +37,7 @@ until docker exec mysql-container test -f /data-with-null.sql; do
     sleep 2
 done
 echo "SQL file successfully copied to the container."
+sleep 3
 
 # Run the SQL script inside the container
 docker exec -i mysql-container mysql -u root -prootpassword mysql -e "source /data-with-null.sql"
