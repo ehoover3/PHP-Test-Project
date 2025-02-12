@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   mysql:
     image: mysql:8.0
@@ -8,11 +10,11 @@ services:
       - mysql_network
     volumes:
       - mysql_data:/var/lib/mysql
+    env_file:
+      - .env
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-    env_file:
-      - .env
 
   php:
     build:
@@ -23,14 +25,10 @@ services:
       - "8081:80"
     volumes:
       - ./backend:/var/www/html
-      - ./.env:/var/www/html/.env
     networks:
       - mysql_network
-    environment:
-      DB_NAME: ${DB_NAME}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_HOST: ${DB_HOST}
+    env_file:
+      - .env
 
 networks:
   mysql_network:
