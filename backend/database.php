@@ -52,6 +52,64 @@ class Database
         return ['message' => 'No results found.'];
     }
 
+    public function updateCommentsInBatch()
+    {
+        $comments = $this->getOrderComments();
+        if (isset($comments['message'])) {
+            return 0; // No records to update
+        }
+
+        $updatedCount = 0;
+        foreach ($comments as $comment) {
+            if ($this->processRecord($comment)) {
+                $updatedCount++;
+            }
+        }
+
+        return $updatedCount;
+    }
+
+    private function processRecord($comment)
+    {
+        $orderid = $comment['orderid'];
+        $comments = $comment['comments'];
+        $shipdateExpected = $comment['shipdate_expected'];
+
+        if (preg_match('/Expected Ship Date:\s*(\d{2}\/\d{2}\/\d{2})/', $comments, $matches)) {
+            $date = DateTime::createFromFormat('m/d/y', $matches[1]);
+            if ($date) {
+                $formattedDate = $date->format('Y-m-d');
+                $updatedComments = preg_replace('/Expected Ship Date:\s*\d{2}\/\d{2}\/\d{2}\s*/', '', $comments);
+
+                // Update ship date if it's not set
+                if ($shipdateExpected === null || $shipdateExpected == "0000-00-00") {
+                    $this->updateShipDate($orderid, $formattedDate);
+                }
+
+                // Update comments
+                return $this->executeUpdate($orderid, $formattedDate, $updatedComments, $shipdateExpected);
+            }
+        }
+        return false;
+    }
+
+    private function executeUpdate($orderid, $formattedDate, $updatedComments, $shipdateExpected)
+    {
+        if ($shipdateExpected === null || $shipdateExpected == "0000-00-00") {
+            $updateSql = "UPDATE sweetwater_test SET shipdate_expected = ?, comments = ? WHERE orderid = ?";
+            $stmt = $this->conn->prepare($updateSql);
+            $stmt->bind_param("ssi", $formattedDate, $updatedComments, $orderid);
+        } else {
+            $updateSql = "UPDATE sweetwater_test SET comments = ? WHERE orderid = ?";
+            $stmt = $this->conn->prepare($updateSql);
+            $stmt->bind_param("si", $updatedComments, $orderid);
+        }
+
+        $stmt->execute();
+        $stmt->close();
+        return true;
+    }
+
     public function updateShipDate($orderId, $shipDateTime)
     {
         $sql = "UPDATE sweetwater_test SET shipdate_expected = ? WHERE orderid = ?";
